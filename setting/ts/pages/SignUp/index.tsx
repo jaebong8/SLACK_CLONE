@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Button, Error, Form, Header, Input, Label, LinkContainer, Success } from '@pages/SignUp/styles';
 import useInput from '@hooks/useInput';
 import { useHistory } from 'react-router';
+import { Link } from 'react-router-dom';
 
 const SignUp = () => {
   const [email, setEmail, onChangeEmail] = useInput('');
@@ -101,7 +102,7 @@ const SignUp = () => {
       </Form>
       <LinkContainer>
         이미 회원이신가요?&nbsp;
-        <a href="/login">로그인 하러가기</a>
+        <Link to="/login">로그인 하러가기</Link>
       </LinkContainer>
     </div>
   );
