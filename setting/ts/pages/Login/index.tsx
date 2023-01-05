@@ -2,7 +2,7 @@ import React, { useCallback, useState } from 'react';
 import { Button, Error, Form, Header, Input, Label, LinkContainer, Success } from '@pages/SignUp/styles';
 import useInput from '@hooks/useInput';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
+import { Link, Redirect } from 'react-router-dom';
 import useSWR from 'swr';
 import { fetcher } from '@utils/fetcher';
 const Login = () => {
@@ -22,8 +22,8 @@ const Login = () => {
             withCredentials: true,
           },
         )
-        .then(() => {
-          mutate();
+        .then((res) => {
+          mutate(res.data);
         })
         .catch((error) => {
           setLogInError(error.response?.data?.code === 401);
@@ -32,11 +32,11 @@ const Login = () => {
     [email, password],
   );
 
-  // console.log(error, userData);
-  // if (!error && userData) {
-  //   console.log('로그인됨', userData);
-  //   return <Redirect to="/workspace/sleact/channel/일반" />;
-  // }
+  console.log(error, userData);
+  if (!error && userData) {
+    console.log('로그인됨', userData);
+    return <Redirect to="/workspace/channel" />;
+  }
 
   return (
     <div id="container">
