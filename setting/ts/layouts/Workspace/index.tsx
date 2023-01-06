@@ -15,17 +15,26 @@ import {
   MenuScroll,
   ProfileModal,
   LogOutButton,
+  WorkspaceButton,
+  AddButton,
 } from '@layouts/Workspace/styles';
 import gravatar from 'gravatar';
 import loadable from '@loadable/component';
 import Menu from '@components/Menu';
+import { Link } from 'react-router-dom';
+import { IUser } from '@typings/db';
+import { Button, Input, Label } from '@pages/SignUp/styles';
+import useInput from '@hooks/useInput';
 
 const Channel = loadable(() => import('@pages/Channel'));
 const DirectMessage = loadable(() => import('@pages/DirectMessage'));
 
 const Workspace: FC = ({ children }) => {
-  const { data: userData, error, mutate } = useSWR('http://localhost:3095/api/users', fetcher);
+  const { data: userData, error, mutate } = useSWR<IUser | false>('http://localhost:3095/api/users', fetcher);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showCreateWorkspaceModal, setShowCreateWorkspaceModal] = useState(false);
+  const [newWorkspace, setNewWorkspace, onChangeNewWorkspace] = useInput('');
+  const [newUrl, setNewUrl, onChangeNewUrl] = useInput('');
   const onLogout = useCallback(() => {
     axios
       .post('http://localhost:3095/api/users/logout', null, {
@@ -38,6 +47,10 @@ const Workspace: FC = ({ children }) => {
 
   const onClickUserProfile = useCallback(() => {
     setShowUserMenu((prev) => !prev);
+  }, []);
+
+  const onClickCreateWorkspace = useCallback(() => {
+    setShowCreateWorkspaceModal(true);
   }, []);
 
   if (!userData) {
@@ -55,7 +68,7 @@ const Workspace: FC = ({ children }) => {
             {showUserMenu && (
               <Menu style={{ right: 0, top: 38 }} show={showUserMenu} onCloseModal={onClickUserProfile}>
                 <ProfileModal>
-                  <img src={gravatar.url(userData.nickname, { s: '36px', d: 'monsterid' })} alt={userData.nickname} />
+                  <img src={gravatar.url(userData.email, { s: '36px', d: 'monsterid' })} alt={userData.nickname} />
                   <div>
                     <span id="profile-name">{userData.nickname}</span>
                     <span id="profile-active">Active</span>
@@ -68,7 +81,16 @@ const Workspace: FC = ({ children }) => {
         </RightMenu>
       </Header>
       <WorkspaceWrapper>
-        <Workspaces>Workspaces</Workspaces>
+        <Workspaces>
+          {userData?.Workspaces.map((ws) => {
+            return (
+              <Link key={ws.id} to={`workspace/${123}/channel/일반`}>
+                <WorkspaceButton>{ws.name.slice(0, 1).toUpperCase()}</WorkspaceButton>
+              </Link>
+            );
+          })}
+          <AddButton onClick={onClickCreateWorkspace}>+</AddButton>
+        </Workspaces>
         <Channels>
           <WorkspaceName>스을리액트</WorkspaceName>
           <MenuScroll>MenuScroll</MenuScroll>
@@ -80,6 +102,19 @@ const Workspace: FC = ({ children }) => {
           </Switch>
         </Chats>
       </WorkspaceWrapper>
+      <Modal show={showCreateWorkspaceModal} onCloseModal={onCloseModal}>
+        <form onSubmit={onCreateWorkspace}>
+          <Label id="workspace-label">
+            <span>워크스페이스 이름</span>
+            <Input id="workspace" value={newWorkspace} onChange={onChangeWorkspace} />
+          </Label>
+          <Label id="workspace-url-label">
+            <span>워크스페이스 url</span>
+            <Input id="workspace" value={newUrl} onChange={onChangeNewUrl} />
+          </Label>
+          <Button type="submit">생성하기</Button>
+        </form>
+      </Modal>
       {children}
     </div>
   );
