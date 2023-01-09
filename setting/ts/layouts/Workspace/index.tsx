@@ -25,6 +25,8 @@ import { Link } from 'react-router-dom';
 import { IUser } from '@typings/db';
 import { Button, Input, Label } from '@pages/SignUp/styles';
 import useInput from '@hooks/useInput';
+import Modal from '@components/Modal';
+import { toast } from 'react-toastify';
 
 const Channel = loadable(() => import('@pages/Channel'));
 const DirectMessage = loadable(() => import('@pages/DirectMessage'));
@@ -45,12 +47,44 @@ const Workspace: FC = ({ children }) => {
       });
   }, []);
 
-  const onClickUserProfile = useCallback(() => {
+  const onClickUserProfile = useCallback((e) => {
     setShowUserMenu((prev) => !prev);
   }, []);
 
   const onClickCreateWorkspace = useCallback(() => {
     setShowCreateWorkspaceModal(true);
+  }, []);
+
+  const onCloseUserProfile = useCallback((e) => {
+    e.stopPropagation();
+    setShowUserMenu(false);
+  }, []);
+
+  const onCreateWorkspace = useCallback(
+    (e) => {
+      e.preventDefault();
+      if (!newWorkspace || !newWorkspace.trim()) return;
+      if (!newUrl || !newUrl.trim()) return;
+      axios
+        .post('/api/workspaces', {
+          workspace: newWorkspace,
+          url: newUrl,
+        })
+        .then(() => {
+          mutate();
+          setShowCreateWorkspaceModal(false);
+          setNewWorkspace('');
+          setNewUrl('');
+        })
+        .catch((error) => {
+          toast.error(error.response?.data, { position: 'bottom-center' });
+        });
+    },
+    [newWorkspace, newUrl],
+  );
+
+  const onCloseModal = useCallback(() => {
+    setShowCreateWorkspaceModal(false);
   }, []);
 
   if (!userData) {
@@ -66,7 +100,7 @@ const Workspace: FC = ({ children }) => {
               alt={userData.nickname}
             ></ProfileImg>
             {showUserMenu && (
-              <Menu style={{ right: 0, top: 38 }} show={showUserMenu} onCloseModal={onClickUserProfile}>
+              <Menu style={{ right: 0, top: 38 }} show={showUserMenu} onCloseModal={onCloseUserProfile}>
                 <ProfileModal>
                   <img src={gravatar.url(userData.email, { s: '36px', d: 'monsterid' })} alt={userData.nickname} />
                   <div>
@@ -106,7 +140,7 @@ const Workspace: FC = ({ children }) => {
         <form onSubmit={onCreateWorkspace}>
           <Label id="workspace-label">
             <span>워크스페이스 이름</span>
-            <Input id="workspace" value={newWorkspace} onChange={onChangeWorkspace} />
+            <Input id="workspace" value={newWorkspace} onChange={onChangeNewWorkspace} />
           </Label>
           <Label id="workspace-url-label">
             <span>워크스페이스 url</span>
