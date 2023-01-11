@@ -10,6 +10,8 @@
     "strict": true,
     "resolveJsonModule": true,
     "baseUrl": ".",
+    "noImplicitAny": false,
+    "skipLibCheck": true,
     "paths": {
       "@hooks/*": ["hooks/*"],
       "@components/*": ["components/*"],

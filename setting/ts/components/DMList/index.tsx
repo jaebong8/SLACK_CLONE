@@ -5,6 +5,7 @@ import useSWR from 'swr';
 import { IUser, IUserWithOnline } from '@typings/db';
 import { fetcher } from '@utils/fetcher';
 import EachDM from '@components/EachDM';
+import useSocket from '@hooks/useSocket';
 
 const DMList = () => {
   const { workspace } = useParams<{ workspace?: string }>();
@@ -17,7 +18,7 @@ const DMList = () => {
   );
   const [channelCollapse, setChannelCollapse] = useState(false);
   const [onlineList, setOnlineList] = useState<number[]>([]);
-
+  const [socket] = useSocket(workspace);
   const toggleChannelCollapse = useCallback(() => {
     setChannelCollapse((prev) => !prev);
   }, []);
@@ -26,6 +27,20 @@ const DMList = () => {
     console.log('DMList: workspace 바꼈다', workspace);
     setOnlineList([]);
   }, [workspace]);
+
+  useEffect(() => {
+    socket?.on('onlineList', (data: number[]) => {
+      setOnlineList(data);
+    });
+    // socket?.on("dm", onMessage)
+    // console.log("socket on dm", socket?.hasListeners("dm"), socket)
+    return () => {
+      // socket?.off("dm", onMessage);
+      // console.log("socket off dm", socket?.hasListeners("dm"))
+      socket?.off('onlineList');
+    };
+  }, [socket]);
+
   return (
     <>
       <h2>
