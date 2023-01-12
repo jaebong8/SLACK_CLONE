@@ -1,11 +1,17 @@
+import Chat from '@components/Chat';
 import { ChatZone, Section, StickyHeader } from '@components/ChatList/styles';
 import { IChat, IDM } from '@typings/db';
-import React, { FC, RefObject, useCallback } from 'react';
+import React, { VFC } from 'react';
 
-const ChatList = () => {
+interface Props {
+  chatData?: IDM[];
+}
+const ChatList: VFC<Props> = ({ chatData }) => {
   return (
     <ChatZone>
-      <Section>section</Section>
+      {chatData?.map((chat) => (
+        <Chat key={chat.id} data={chat} />
+      ))}
     </ChatZone>
   );
 };
