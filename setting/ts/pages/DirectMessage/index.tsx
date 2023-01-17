@@ -29,6 +29,7 @@ const DirectMessage = () => {
           })
           .then(() => {
             setChat('');
+            mutateChat();
           })
           .catch((error) => {
             console.dir(error);
