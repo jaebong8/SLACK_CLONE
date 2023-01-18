@@ -12,7 +12,7 @@ const DMList = () => {
   const { data: userData } = useSWR<IUser>('/api/users', fetcher, {
     dedupingInterval: 2000,
   });
-  const { data: memberData } = useSWR<IUserWithOnline[]>(
+  const { data: memberData, mutate } = useSWR<IUserWithOnline[]>(
     userData ? `/api/workspaces/${workspace}/members` : null,
     fetcher,
   );
@@ -32,6 +32,7 @@ const DMList = () => {
     socket?.on('onlineList', (data: number[]) => {
       setOnlineList(data);
     });
+    mutate();
     // socket?.on("dm", onMessage)
     // console.log("socket on dm", socket?.hasListeners("dm"), socket)
     return () => {
