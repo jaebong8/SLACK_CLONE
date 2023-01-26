@@ -21,4 +21,11 @@ export const Header = styled.header`
   & img {
     margin-right: 5px;
   }
+
+  & .header-right {
+    display: flex;
+    flex: 1;
+    justif-content: flex-end;
+    align-items: center;
+  }
 `;
